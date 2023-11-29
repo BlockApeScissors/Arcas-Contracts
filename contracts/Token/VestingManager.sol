@@ -2,18 +2,21 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract VestingManager is Ownable { 
+contract VestingManager is Ownable (msg.sender) { 
+
+    using SafeERC20 for IERC20;
 
     // Start and End block for vesting
-    uint256 public startBlock;
-    uint256 public endBlock;
+    uint256 public immutable startBlock;
+    uint256 public immutable endBlock;
 
     // Failsafe wallet
     address public failsafeWallet;
 
     // Arcas token
-    IERC20 public arcas;
+    IERC20 public immutable arcas;
 
     // Vesting struct
     struct Vesting {
@@ -35,6 +38,7 @@ contract VestingManager is Ownable {
     constructor(uint256 _startBlock, uint256 _endBlock, address _failsafeWallet, address _arcas) {
         require(_failsafeWallet != address(0), "Failsafe wallet cannot be zero address");
         require(_startBlock < _endBlock, "Invalid vesting duration");
+        require(_arcas != address(0), "Token cannot be zero address");
         startBlock = _startBlock;
         endBlock = _endBlock;
         failsafeWallet = _failsafeWallet;
@@ -54,10 +58,10 @@ contract VestingManager is Ownable {
         require(addressToVestings[user].totalAmount == 0, "Address has already received vesting");
         require(totalAmount > 0, "Invalid vesting amount");
 
-        arcas.transferFrom(msg.sender, address(this), totalAmount);
-        arcas.approve(address(this), totalAmount);
         addressToVestings[user] = Vesting(0, totalAmount, false);
 
+        arcas.transferFrom(msg.sender, address(this), totalAmount);
+        
     }
 
     // Function to delete a vesting, permissioned to failsafewallet
@@ -65,9 +69,9 @@ contract VestingManager is Ownable {
         Vesting storage vesting = addressToVestings[user];
         require(!vesting.deleted, "Vesting already deleted");
 
-        arcas.transferFrom(address(this), failsafeWallet, vesting.totalAmount - vesting.claimedAmount);
-
         vesting.deleted = true;
+        
+        arcas.transfer(failsafeWallet, vesting.totalAmount - vesting.claimedAmount);
     }
 
     //Function to claim available tokens for vesting recipients
@@ -79,9 +83,9 @@ contract VestingManager is Ownable {
         // Calculate the number of tokens claimable at the current block
         uint256 claimableAmount = calculateClaimableAmount(vesting.totalAmount);
 
-        arcas.transferFrom(address(this), msg.sender, claimableAmount - vesting.claimedAmount);
-
         vesting.claimedAmount = claimableAmount;
+
+        arcas.transfer( msg.sender, claimableAmount - vesting.claimedAmount);
 
     }
 

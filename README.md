@@ -25,20 +25,20 @@ Smart contracts here:
 https://bscscan.com/address/0xAd0926eCf31719263DC86426024794332d9dD9A3#code
 
 2. Arcas Team Vesting Manager deployed here:
-https://bscscan.com/address/0x9CB1A7924647D6Bbbd80C5DDfE2640b224Eee965#code
+https://bscscan.com/address/0x14d6d8b626f67d0bea717ef3eee899e9b466827a#code
 
 Funds have not yet been deployed in the manager pending audit.
 
 The Vesting manager has been preset with a vesting timeline:
 
-Start Block: 33942285 (Expected 1st Dec 2023)
+Start Block: 34096534 (Expected 1st Dec 2023)
 
-End Block: 44310285 (Expected 1st Dec 2024)
+End Block: 44608534 (Expected 1st Dec 2024)
 
 This is immutable and will unlock tokens in a linear fashion over the 12 month period to the associated vesting wallets.
 
 New vestings added after the 1st of December follow the same unlock schedule, meaning recipient wallets will be able to claim
-some tokens immediately.
+some tokens immediately. 
 
 
 
