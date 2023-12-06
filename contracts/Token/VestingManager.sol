@@ -66,6 +66,7 @@ contract VestingManager is Ownable (msg.sender) {
 
     // Function to delete a vesting, permissioned to failsafewallet
     function deleteVesting(address user) external onlyFailsafeWallet {
+        require(user != address(0), "Invalid user address");
         Vesting storage vesting = addressToVestings[user];
         require(!vesting.deleted, "Vesting already deleted");
 
