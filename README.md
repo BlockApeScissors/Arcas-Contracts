@@ -25,7 +25,7 @@ Smart contracts here:
 https://bscscan.com/address/0xAd0926eCf31719263DC86426024794332d9dD9A3#code
 
 2. Arcas Team Vesting Manager deployed here:
-https://bscscan.com/address/0x14d6d8b626f67d0bea717ef3eee899e9b466827a#code
+https://bscscan.com/address/0x0D3D916c5b18D7D8cB5176BeBB7511198253b307#code
 
 Funds have not yet been deployed in the manager pending audit.
 
