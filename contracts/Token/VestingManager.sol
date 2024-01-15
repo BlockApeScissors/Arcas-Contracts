@@ -60,18 +60,19 @@ contract VestingManager is Ownable (msg.sender) {
 
         addressToVestings[user] = Vesting(0, totalAmount, false);
 
-        arcas.transferFrom(msg.sender, address(this), totalAmount);
+        arcas.safeTransferFrom(msg.sender, address(this), totalAmount);
         
     }
 
     // Function to delete a vesting, permissioned to failsafewallet
     function deleteVesting(address user) external onlyFailsafeWallet {
+        require(user != address(0), "Invalid user address");
         Vesting storage vesting = addressToVestings[user];
         require(!vesting.deleted, "Vesting already deleted");
 
         vesting.deleted = true;
         
-        arcas.transfer(failsafeWallet, vesting.totalAmount - vesting.claimedAmount);
+        arcas.safeTransfer(failsafeWallet, vesting.totalAmount - vesting.claimedAmount);
     }
 
     //Function to claim available tokens for vesting recipients
@@ -85,7 +86,7 @@ contract VestingManager is Ownable (msg.sender) {
 
         vesting.claimedAmount = claimableAmount;
 
-        arcas.transfer( msg.sender, claimableAmount - vesting.claimedAmount);
+        arcas.safeTransfer( msg.sender, claimableAmount - vesting.claimedAmount);
 
     }
 
