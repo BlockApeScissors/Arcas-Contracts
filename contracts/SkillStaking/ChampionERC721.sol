@@ -4,10 +4,12 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "https://github.com/binance-cloud/binance-oracle/blob/main/contracts/mock/VRFConsumerBase.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "https://github.com/binance-cloud/binance-oracle/blob/main/contracts/interfaces/VRFCoordinatorInterface.sol";
 
 
 contract ChampionERC721 is ERC721Enumerable, VRFConsumerBase {
-    bytes32 internal keyHash;
+    bytes32 internal keyHash = 0x617abc3f53ae11766071d04ada1c7b0fbd49833b9542e9e91da4d3191c70cc80;
     uint64 internal subId; // Subscription ID
     uint32 internal callbackGasLimit = 200000; // Example value, adjust as needed
     uint16 internal requestConfirmations = 3; // Example value, adjust as needed
@@ -28,8 +30,7 @@ contract ChampionERC721 is ERC721Enumerable, VRFConsumerBase {
     )
         ERC721("Arcas Champion", "CHAMP")
         VRFConsumerBase(
-            0x2B30C31a17Fe8b5dd397EF66FaFa503760D4eaF0, // VRF Coordinator on opBNB Testnet
-            0x617abc3f53ae11766071d04ada1c7b0fbd49833b9542e9e91da4d3191c70cc80  // keyHash
+            0x2B30C31a17Fe8b5dd397EF66FaFa503760D4eaF0 // VRF Coordinator on opBNB Testnet
         )
     {
         subId = 10; // Provided subscription ID
@@ -44,7 +45,7 @@ contract ChampionERC721 is ERC721Enumerable, VRFConsumerBase {
 
 
     function mintChampion(address to) public {
-        uint256 requestId = requestRandomWords(keyHash, subId, requestConfirmations, callbackGasLimit, 1);
+        uint256 requestId = VRFCoordinatorInterface(0x2B30C31a17Fe8b5dd397EF66FaFa503760D4eaF0).requestRandomWords(keyHash, subId, requestConfirmations, callbackGasLimit, 1);
         _requestIdToTokenId[requestId] = counter;
         _championDetails[counter] = ChampionMetadata(0, 0);
         _mint(to, counter);

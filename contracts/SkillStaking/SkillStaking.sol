@@ -2,54 +2,68 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Interfaces/IRankOracle.sol";
+import "./Interfaces/IChampion.sol";
 
 contract SkillStaking is Ownable {
 
     uint256 public champLimit;
-    uint256 public yieldMultiplier;
-    uint256 public yieldFeeConstant;
+    uint256 public yieldBlockReward;
+    IRankOracle public rankOracle;
+    IChampionERC721 public championNft;
+    IERC20 public arcas;
 
     constructor(
+
         uint256 _champLimit,
-        uint256 _yieldMultiplier,
-        uint256 _yieldFeeConstant
+        uint256 _yieldBlockReward,
+        address _rankOracle,
+        address _championNft,
+        address _arcas
+
     ) Ownable(msg.sender) {
 
         champLimit = _champLimit;
-        yieldMultiplier = _yieldMultiplier;
-        yieldFeeConstant = _yieldFeeConstant;
+        yieldBlockReward = _yieldBlockReward;
+        rankOracle = IRankOracle(_rankOracle);
+        championNft = IChampionERC721(_championNft);
+        arcas = IERC20(_arcas);
+    
     }
 
     function setChampLimit(uint256 newLimit) external onlyOwner {
         champLimit = newLimit;
     }
 
-    function setYieldMultiplier(uint256 newMultiplier) external onlyOwner {
-        yieldMultiplier = newMultiplier;
+    function setYieldMultiplier(uint256 _yieldBlockReward) external onlyOwner {
+        yieldBlockReward = _yieldBlockReward;
     }
 
-    function setYieldFeeConstant(uint256 newConstant) external onlyOwner {
-        yieldFeeConstant = newConstant;
+    function setRankOracle(address _rankOracle) external onlyOwner {
+        rankOracle = IRankOracle(_rankOracle);
     }
 
     function calculateEntryFee(uint256 amount, uint256 champStakedTotal) external view returns (uint256) {
-        // Calculate the current entry fee level
-        uint256 currentFeeLevel = (champStakedTotal * 1000) / champLimit;
+        // Calculate the current entry fee level as a % * 1000
+        return ((champStakedTotal + (amount/2) ) * 1000000 / champLimit);
 
-        // Calculate the entry fee after staking the given amount
-        uint256 feeAfter = ((champStakedTotal + amount) * 1000) / champLimit;
-
-        // Calculate the mid-point fee
-        uint256 midPointFee = (currentFeeLevel + feeAfter) / 2;
-
-        return midPointFee;
     }
 
+    function calculateBlockYield(uint256 champStakedTotal, uint256 championId, uint256 totalStaked) external view returns (uint256) {
 
-    function calculateYield(uint256 amount, uint256 championId, uint256 yieldStamp) external view returns (uint256) {
-        // Apply your yield calculation logic here using yieldMultiplier, yieldFeeConstant, or any other factors
-        // For demonstration purposes, a simple calculation is provided:
-        return (amount * yieldMultiplier) / (championId + yieldFeeConstant);
+        //We have RankOracle MMR of Champ, Total Champ count, total MMR, yieldreward, adjusted by 1000000
+        uint256 avgMmr = (rankOracle.totalMMR()) / (championNft.counter() - 1);
+
+        // MMR Skew as a % * 1000000, as mmr < avgMmr it is a reduction
+        uint256 MmrSkew = (rankOracle.getChampionMMR(championId) * 1000000)/avgMmr;
+
+        // Share of Skillstaking as a % * 1000000
+        uint256 poolShare = (champStakedTotal * 1000000) / totalStaked;
+
+        // Find the % of block rewards due to the champion
+        return (((yieldBlockReward * poolShare) / 1000000) * MmrSkew) / 1000000; 
+
     }
+
 }

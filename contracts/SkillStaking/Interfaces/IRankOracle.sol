@@ -8,8 +8,11 @@ interface IRankOracle {
     //Address of the connected Champion NFTs
     function championNFT() external view returns (address);
 
+    //Total MMR in the oracle
+    function totalMMR() external view returns (uint256);
+
     //Priveleged function to set and update MMRs
-    function setChampionMMRs(uint256[] memory ids, uint256[] memory mmrs) external;
+    function setChampionMMRs(uint256[] memory mmrs) external;
     
     //Function to retrieve the MMR of a champion
     function getChampionMMR(uint256 championId) external view returns (uint256);

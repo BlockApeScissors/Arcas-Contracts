@@ -84,9 +84,11 @@ contract VestingManager is Ownable (msg.sender) {
         // Calculate the number of tokens claimable at the current block
         uint256 claimableAmount = calculateClaimableAmount(vesting.totalAmount);
 
+        uint256 tempClaimedAmount = vesting.claimedAmount;
+
         vesting.claimedAmount = claimableAmount;
 
-        arcas.safeTransfer( msg.sender, claimableAmount - vesting.claimedAmount);
+        arcas.safeTransfer( msg.sender, claimableAmount - tempClaimedAmount);
 
     }
 
