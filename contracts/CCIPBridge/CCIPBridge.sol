@@ -72,7 +72,7 @@ contract Bridge is Ownable, CCIPReceiver, ReentrancyGuard {
     //                                                     //
     //                      CONSTRUCTOR                    //
     //                                                     //            
-    /////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////// 
 
     /// @notice Constructor initializes the contract with the router address.
     /// @param _router The address of the router contract.
@@ -106,7 +106,7 @@ contract Bridge is Ownable, CCIPReceiver, ReentrancyGuard {
     /// @notice Sets receiver of the CCIP call, can only be set once, must be set after initialisation for corresponding address.
     /// @param _mirror the mirrored ccip crosschain contract
     function setMirror(address _mirror ) external onlyOwner {
-        require(mirror == address(0));
+        require(mirror == address(0) && _mirror != address(0));
         mirror = _mirror;   
     }
 
@@ -220,7 +220,7 @@ contract Bridge is Ownable, CCIPReceiver, ReentrancyGuard {
     /// Handles a CCIP received message and bridges the tokens
     function _ccipReceive(
         Client.Any2EVMMessage memory any2EvmMessage
-    ) internal override {
+    ) internal nonReentrant override {
         
         //Ensure the chain is correct
         require(any2EvmMessage.sourceChainSelector == allowedChainSelector, "Wrong chain");
