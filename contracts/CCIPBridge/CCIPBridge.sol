@@ -236,7 +236,7 @@ contract Bridge is Ownable, CCIPReceiver, ReentrancyGuard {
         //Ensure the chain is correct
         if (any2EvmMessage.sourceChainSelector != allowedChainSelector) revert InvalidChainSelector();
         //Ensure the sender is the mirror
-        if (abi.decode(any2EvmMessage.sender, (address)) == address(this)) revert InvalidSender();
+        if (abi.decode(any2EvmMessage.sender, (address)) != address(this)) revert InvalidSender();
         //Ensure the bridge is not locked
         if (lock) revert BridgeLocked();
 
